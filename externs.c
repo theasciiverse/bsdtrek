@@ -90,3 +90,16 @@ const char *Systemname[NINHAB] = {
 	"Epsilon Eridani IV",
 	"Exo III"
 };
+
+/* defined here once; trek.h declares them extern (modern compilers no longer merge
+   tentative definitions from a shared header) */
+struct quad	Quad[NQUADS][NQUADS];
+char	Sect[NSECTS][NSECTS];
+struct event	Event[MAXEVENTS];
+struct Ship_struct Ship;
+struct Game_struct Game;
+struct Move_struct Move;
+struct Param_struct Param;
+struct Now_struct Now;
+struct Etc_struct Etc;
+int	Trace;

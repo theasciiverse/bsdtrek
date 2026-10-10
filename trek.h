@@ -125,7 +125,7 @@ struct quad {
 extern const char	*Systemname[NINHAB];
 
 /* quadrant definition */
-struct quad	Quad[NQUADS][NQUADS];
+extern struct quad	Quad[NQUADS][NQUADS];
 
 /* defines for sector map  (below) */
 #define EMPTY		'.'
@@ -138,7 +138,7 @@ struct quad	Quad[NQUADS][NQUADS];
 #define HOLE		' '
 
 /* current sector map */
-char	Sect[NSECTS][NSECTS];
+extern char	Sect[NSECTS][NSECTS];
 
 
 /************************ DEVICES ******************************/
@@ -210,7 +210,7 @@ struct event {
 #define MAXEVENTS	25
 
 /* dynamic event list; one entry per pending event */
-struct event	Event[MAXEVENTS];
+extern struct event	Event[MAXEVENTS];
 
 /*****************************  KLINGONS  *******************************/
 
@@ -277,7 +277,7 @@ struct Ship_struct {
 	char	ship;		/* current starship */
 	int	distressed;	/* number of distress calls */
 };
-struct Ship_struct Ship;
+extern struct Ship_struct Ship;
 
 
 /* game related information, mostly scoring */
@@ -297,7 +297,7 @@ struct Game_struct {
 	char	helps;		/* number of help calls */
 	int	captives;	/* total number of captives taken */
 };
-struct Game_struct Game;
+extern struct Game_struct Game;
 
 /* per move information */
 struct Move_struct {
@@ -308,7 +308,7 @@ struct Move_struct {
 	char	resting;	/* set if this move is a rest */
 	double	time;		/* time used this move */
 };
-struct Move_struct Move;
+extern struct Move_struct Move;
 
 /* parametric information */
 struct Param_struct {
@@ -342,7 +342,7 @@ struct Param_struct {
 	double	srndrprob;	/* surrender probability */
 	int	energylow;	/* low energy mark (cond YELLOW) */
 };
-struct Param_struct Param;
+extern struct Param_struct Param;
 
 /* Sum of damage probabilities must add to 1000 */
 
@@ -357,7 +357,7 @@ struct Now_struct {
 	struct event	*eventptr[NEVENTS];	/* pointer to event structs */
 	struct xy	base[MAXBASES];		/* locations of starbases */
 };
-struct Now_struct Now;
+extern struct Now_struct Now;
 
 /* Other stuff, not dumped in a snapshot */
 struct Etc_struct {
@@ -369,7 +369,7 @@ struct Etc_struct {
 					/* snapshot for time warp */
 	char		statreport;	/* set to get a status report on a srscan */
 };
-struct Etc_struct Etc;
+extern struct Etc_struct Etc;
 
 /*
  *	eventptr is a pointer to the event[] entry of the last
@@ -403,7 +403,7 @@ struct Etc_struct Etc;
 
 /* Trace info */
 #define xTRACE		1
-int	Trace;
+extern int	Trace;
 
 #define TOOLARGE	(1e50)	/* FIXME, make this DBL_MAX/2 for portability */
 
