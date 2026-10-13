@@ -33,7 +33,22 @@
 
 #include <fcntl.h>
 
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
 #include "trek.h"
+
+#ifndef O_BINARY
+#define O_BINARY	0
+#endif
+#ifdef _WIN32
+#include <io.h>
+#define MKDIR(p)	mkdir(p)
+#else
+#define MKDIR(p)	mkdir(p, 0755)
+#endif
 
 /***  THIS CONSTANT MUST CHANGE AS THE DATA SPACES CHANGE ***/
 #define VERSION		2
@@ -44,6 +59,7 @@ struct dump {
 };
 
 static bool readdump(int);
+static const char *dumpfile(bool);
 
 struct dump Dump_template[] = {
 	{ (char *)&Ship,	sizeof (Ship)	},
@@ -76,7 +92,7 @@ dumpgame(int v __unused)
 	struct dump	*d;
 	int		i;
 
-	if ((fd = creat("trek.dump", 0644)) < 0) {
+	if ((fd = open(dumpfile(true), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644)) < 0) {
 		printf("cannot dump\n");
 		return;
 	}
@@ -111,7 +127,7 @@ restartgame(void)
 	int	fd;
 	int		version;
 
-	if ((fd = open("trek.dump", O_RDONLY)) < 0 ||
+	if ((fd = open(dumpfile(false), O_RDONLY | O_BINARY)) < 0 ||
 	    read(fd, &version, sizeof version) != sizeof version ||
 	    version != VERSION ||
 	    readdump(fd)) {
@@ -122,6 +138,45 @@ restartgame(void)
 
 	close(fd);
 	return (0);
+}
+
+
+/*
+**  DUMP FILE
+**
+**	The dump lives in the player's data folder, bsdtrek/trek.dump
+**	under $XDG_DATA_HOME, else ~/.local/share, else %APPDATA% on
+**	Windows, so that it survives reinstalling the game.  With none
+**	of those set it is "trek.dump" in the current directory, as it
+**	always was.  With create, the folders are made as needed.
+*/
+
+static const char *
+dumpfile(bool create)
+{
+	static char	path[1024];
+	const char	*base;
+	char		*p;
+
+	if ((base = getenv("XDG_DATA_HOME")) != NULL && *base)
+		snprintf(path, sizeof path, "%s/bsdtrek", base);
+	else if ((base = getenv("HOME")) != NULL && *base)
+		snprintf(path, sizeof path, "%s/.local/share/bsdtrek", base);
+	else if ((base = getenv("APPDATA")) != NULL && *base)
+		snprintf(path, sizeof path, "%s/bsdtrek", base);
+	else
+		return ("trek.dump");
+	if (create)
+		for (p = path + 1; ; p++)
+			if (*p == '/' || *p == '\\' || *p == '\0') {
+				char c = *p;
+				*p = '\0';
+				MKDIR(path);
+				if ((*p = c) == '\0')
+					break;
+			}
+	strncat(path, "/trek.dump", sizeof path - strlen(path) - 1);
+	return (path);
 }
 
 
@@ -140,20 +195,40 @@ readdump(int fd1)
 	int		fd;
 	struct dump	*d;
 	int		i;
-	long			junk;
+	char		*tag;
+	char		*oldevent = NULL;
+	ptrdiff_t	n;
 
 	fd = fd1;
 
+	/*
+	 * Each area is tagged with its address in the program that wrote
+	 * the dump.  Programs now load at a different address every run,
+	 * so the tags no longer have to match; the tag of Event is kept
+	 * to move the event pointers in Now to this run's Event.
+	 */
 	for (d = Dump_template; d->area; d++) {
-		if (read(fd, &junk, sizeof junk) != (sizeof junk))
+		if (read(fd, &tag, sizeof tag) != (sizeof tag))
 			return (1);
-		if ((char *)junk != d->area)
-			return (1);
+		if (d->area == (char *)Event)
+			oldevent = tag;
 		i = d->count;
 		if (read(fd, d->area, i) != i)
 			return (1);
 	}
 
 	/* make quite certain we are at EOF */
-	return (read(fd, &junk, 1));
+	if (read(fd, &tag, 1))
+		return (1);
+
+	for (i = 0; i < NEVENTS; i++) {
+		if (Now.eventptr[i] == NULL)
+			continue;
+		n = ((char *)Now.eventptr[i] - oldevent) / (ptrdiff_t)sizeof Event[0];
+		if (n < 0 || n >= MAXEVENTS)
+			return (1);
+		Now.eventptr[i] = &Event[n];
+	}
+	Ship.shipname = Ship.ship == QUEENE ? "Fairie Queene" : "Enterprise";
+	return (0);
 }
