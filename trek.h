@@ -54,7 +54,7 @@
  * that are known to support the features properly (old versions of gcc-2
  * didn't permit keeping the keywords out of the application namespace).
  */
-#  if __GNUC_PREREQ(2, 7)
+#  if defined(__GNUC__) && (__GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7))
 #    define __printflike(fmtarg, firstvararg)       \
             __attribute__((__format__ (__printf__, fmtarg, firstvararg)))
 #    define __scanflike(fmtarg, firstvararg)        \
@@ -65,6 +65,18 @@
 #    define __scanflike(fmtarg, firstvararg)        /* nothing */
 #    define __format_arg(fmtarg)                    /* nothing */
 #  endif
+#endif
+
+/*
+ * Windows has no BSD random() and no Unix user and group ids.  rand()
+ * gives the 15 bits franf() uses.
+ */
+#ifdef _WIN32
+#  define random()	rand()
+#  define srandom(s)	srand(s)
+#  define setgid(g)	((void)(g))
+#  define getgid()	0
+#  define getuid()	0
 #endif
 
 /*
