@@ -3,3 +3,6 @@ trek
 trek
 *.o
 *.cast
+out/
+stage/
+dist/
