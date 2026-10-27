@@ -38,3 +38,9 @@ names, is in the catalog as Space Pirate Hunt (`spirhunt`, BSD Games).
 - `.github/workflows/release.yml`: static Linux in Alpine (x86_64,
   aarch64), macOS (x86_64, arm64) and Windows x86_64 (MinGW), plus
   SHA256SUMS, on a tag.
+
+## Ours
+
+- **How to play it, at the top of README.md.** A short note on installing and
+  starting it with av, or from a release archive; the original text follows
+  unchanged.
