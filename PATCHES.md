@@ -37,7 +37,8 @@ names, is in the catalog as Space Pirate Hunt (`spirhunt`, BSD Games).
 - `asciiverse/casts/bsdtrek.cast`: the preview, 100x30.
 - `.github/workflows/release.yml`: static Linux in Alpine (x86_64,
   aarch64), macOS (x86_64, arm64) and Windows x86_64 (MinGW), plus
-  SHA256SUMS, on a tag.
+  SHA256SUMS, on one of our `v*-av.*` tags (upstream's own tags come
+  before the asciiverse/ folder).
 
 ## Ours
 

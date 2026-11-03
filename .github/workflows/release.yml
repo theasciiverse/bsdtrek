@@ -11,11 +11,11 @@ name: release
 
 on:
   push:
-    tags: ["*"]
+    tags: ["v*-av.*"]
   workflow_dispatch:
     inputs:
       tag:
-        description: "existing tag to build and release"
+        description: "existing v*-av.* tag to build and release (upstream's tags have no asciiverse/ folder)"
         required: true
 
 env:
